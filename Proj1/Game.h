@@ -15,6 +15,9 @@ class Game{
         void welcomeMsg();
         void startGame();
         void swapPieces();
+        bool verifyCombos();
+        bool verifyHorizontalCombos();
+        bool verifyVerticalCombos();
         void gameLoop();
 };
 
