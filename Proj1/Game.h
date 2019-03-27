@@ -16,9 +16,10 @@ class Game{
         void startGame();
         void swapPieces();
         bool verifyCombos();
-        bool verifyHorizontalCombos();
-        bool verifyVerticalCombos();
+        bool checkCombosHorizontal(int i, int j, vector<vector<int>> &clear);
+        bool checkCombosVertical(int i, int j, vector<vector<int>> &clear);
         void gameLoop();
+        void clearCombos(vector<vector<int>> clear);
 };
 
 #endif
