@@ -24,11 +24,13 @@ void Game :: swapPieces(){
 
 void Game :: startGame(){
     this->board.printBoard();
-    this->swapPieces();
-    cout << this->verifyHorizontalCombos() << endl;
-    cout << this->verifyVerticalCombos() << endl;
+    // this->swapPieces();
+    // cout << this->verifyHorizontalCombos() << endl;
+    // cout << this->verifyVerticalCombos() << endl;
+    // this->board.printBoard();
+    // this->gameLoop();
+    this->board.updateMatrix();
     this->board.printBoard();
-    this->gameLoop();
 }
 
 void Game :: gameLoop(){
@@ -47,8 +49,8 @@ bool Game :: verifyCombos(){
 }
 
 bool Game :: verifyHorizontalCombos(){
-    for(int i = 0; i < this->board.getBoard().size(); i++){
-        for (int j = 0; j < this->board.getBoard().at(i).size() - 2; j++){
+    for(int i = 0; i <(int) this->board.getBoard().size(); i++){
+        for (int j = 0; j <(int) this->board.getBoard().at(i).size() - 2; j++){
             if (this->board.getBoard().at(i).at(j) == this->board.getBoard().at(i).at(j+1) && this->board.getBoard().at(i).at(j) == this->board.getBoard().at(i).at(j+2) && this->board.getBoard().at(i).at(j) != ' '){
                 this->board.setPiece(i,j,' ');
                 this->board.setPiece(i,j+1,' ');
@@ -60,8 +62,8 @@ bool Game :: verifyHorizontalCombos(){
 }
 
 bool Game :: verifyVerticalCombos(){
-    for(int i = 0; i < this->board.getBoard().size() - 2; i++){
-        for (int j = 0; j < this->board.getBoard().at(i).size(); j++){
+    for(int i = 0; i <(int) this->board.getBoard().size() - 2; i++){
+        for (int j = 0; j <(int) this->board.getBoard().at(i).size(); j++){
             if (this->board.getBoard().at(i).at(j) == this->board.getBoard().at(i+1).at(j) && this->board.getBoard().at(i).at(j) == this->board.getBoard().at(i+2).at(j) && this->board.getBoard().at(i).at(j) != ' '){
                 this->board.setPiece(i,j,' ');
                 this->board.setPiece(i+1,j,' ');
