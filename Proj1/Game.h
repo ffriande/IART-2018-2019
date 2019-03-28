@@ -12,6 +12,7 @@ class Game{
     private:
         Board board;
         vector<int> movedCols;
+        int nMoves;
     public:
         Game();
         void welcomeMsg();
@@ -22,7 +23,11 @@ class Game{
         bool checkCombosVertical(int i, int j, vector<vector<int>> &clear);
         void gameLoop();
         void clearCombos(vector<vector<int>> clear);
-        bool checkInput(int r, int c);
+        bool outsideBounds(int r, int c);
+        vector<vector<int>> possibleMovesList(int i, int j);
+        bool checkVictory();
+        void printStats();
+        void testMoves(vector<vector<int>> moves);
 };
 
 #endif

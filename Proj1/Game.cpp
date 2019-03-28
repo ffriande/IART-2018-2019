@@ -3,6 +3,7 @@
 Game ::Game()
 {
     this->board = Board();
+    this->nMoves = 0;
 }
 
 void Game ::welcomeMsg()
@@ -22,22 +23,23 @@ void Game ::swapPieces()
             cin >> r1;
             cout << "Piece 1 : Col" << endl;
             cin >> c1;
-        } while ((this->checkInput(r1, c1) || this->board.getBoard().at(r1).at(c1) == ' ') &&
+        } while ((this->outsideBounds(r1, c1) || this->board.getBoard().at(r1).at(c1) == ' ') &&
                  cout << "\nNot valid. Choose again:\n");
         cout << "Piece 2 : Row" << endl;
         cin >> r2;
         cout << "Piece 2 : Col" << endl;
         cin >> c2;
-    } while (this->checkInput(r2, c2) && cout << "\nNot valid. Choose again:\n");
+    } while (this->outsideBounds(r2, c2) && cout << "\nNot valid. Choose again:\n");
 
     this->board.switchPieces(r1, c1, r2, c2);
+    this->nMoves++;
     if(this->board.getPiece(r2,c2)==' '){
         this->movedCols.push_back(c1);
         this->movedCols.push_back(c2);
     }      
 }
 
-bool Game ::checkInput(int r, int c)
+bool Game ::outsideBounds(int r, int c)
 {
     if (r < 0 || r >= (int)this->board.getBoard().size() ||
         c < 0 || c >= (int)this->board.getBoard().at(r).size())
@@ -58,8 +60,13 @@ void Game ::gameLoop()
         sleep(1);
         cout<<endl<<endl;
         this->board.printBoard();
-        if( !this->board.updateMatrix(this->movedCols) && !this->verifyCombos())
-        this->swapPieces();
+        if (this->checkVictory()){
+            cout << "Victory!" << endl;
+            break;
+        }
+        if( !this->board.updateMatrix(this->movedCols) && !this->verifyCombos()){
+            this->swapPieces();
+        }
     }
 }
 
@@ -123,5 +130,81 @@ void Game ::clearCombos(vector<vector<int>> clear)
     {
         this->board.setPiece(clear.at(i).at(0), clear.at(i).at(1), ' ');
         this->movedCols.push_back(clear.at(i).at(1));
+    }
+}
+
+vector<vector<int>> Game :: possibleMovesList(int row, int col){
+    vector<vector<int>> moves;
+    char color = this->board.getBoard().at(row).at(col);
+    if (color == ' '){
+        return moves;
+    }
+    // Piece top
+    if (!this->outsideBounds(row - 1, col)){
+        if (this->board.getBoard().at(row - 1).at(col) != ' ' && this->board.getBoard().at(row - 1).at(col) != color){
+            vector<int>move ={row - 1, col};
+            moves.push_back(move);
+        }
+    }
+    // Piece bottom
+    if (!this->outsideBounds(row + 1, col)){
+        if (this->board.getBoard().at(row + 1).at(col) != ' ' && this->board.getBoard().at(row + 1).at(col) != color){
+            vector<int>move ={row + 1, col};
+            moves.push_back(move);
+        }
+    }
+    // Piece left
+    if (!this->outsideBounds(row, col - 1)){
+        if (this->board.getBoard().at(row).at(col - 1) != ' ' && this->board.getBoard().at(row).at(col - 1) != color){
+            vector<int>move ={row, col - 1};
+            moves.push_back(move);
+        }
+    }
+    // Piece right
+    if (!this->outsideBounds(row, col + 1)){
+        if (this->board.getBoard().at(row).at(col + 1) != ' ' && this->board.getBoard().at(row).at(col + 1) != color){
+            vector<int>move ={row, col + 1};
+            moves.push_back(move);
+        }
+    }
+    // Empty Left
+    if (!this->outsideBounds(row, col - 1)){
+        if (this->board.getBoard().at(row).at(col - 1) == ' '){
+            vector<int>move ={row, col - 1};
+            moves.push_back(move);
+        }
+    }
+    // Empty Right
+    if (!this->outsideBounds(row, col + 1)){
+        if (this->board.getBoard().at(row).at(col + 1) == ' '){
+            vector<int>move ={row, col + 1};
+            moves.push_back(move);
+        }
+    }
+
+    return moves;
+}
+
+bool Game :: checkVictory(){
+    for (int i = 0; i < this->board.getBoard().size(); i++){
+        for (int j = 0; j < this->board.getBoard().at(i).size(); j++){
+            if (this->board.getBoard().at(i).at(j) != ' ')
+                return false;
+        }
+    }
+    return true;
+}
+
+void Game :: printStats(){
+    cout << "Congratulations!! You won the game with " << this->nMoves << " move(s)!" << endl;
+    cout << "Thank you for playing" << endl;
+}
+
+void Game :: testMoves(vector<vector<int>> moves){
+    for (int i = 0; i < moves.size(); i++){
+        for (int j = 0; j < moves.at(i).size(); j++){
+            cout << moves.at(i).at(j) << " ";
+        }
+        cout << endl;
     }
 }
