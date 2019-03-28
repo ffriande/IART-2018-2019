@@ -31,12 +31,12 @@ void Game ::swapPieces()
         cin >> c2;
     } while (this->outsideBounds(r2, c2) && cout << "\nNot valid. Choose again:\n");
 
-    this->board.switchPieces(r1, c1, r2, c2);
-    this->nMoves++;
     if(this->board.getPiece(r2,c2)==' '){
         this->movedCols.push_back(c1);
         this->movedCols.push_back(c2);
-    }      
+    } 
+    this->board.switchPieces(r1, c1, r2, c2);
+    this->nMoves++;     
 }
 
 bool Game ::outsideBounds(int r, int c)
@@ -66,6 +66,10 @@ void Game ::gameLoop()
         }
         if( !this->board.updateMatrix(this->movedCols) && !this->verifyCombos()){
             this->swapPieces();
+            for (int i = 0; i < this->movedCols.size(); i++){
+                cout << this->movedCols.at(i) << " ";
+            }
+            cout << endl;
         }
     }
 }
