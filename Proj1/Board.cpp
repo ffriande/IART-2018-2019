@@ -6,11 +6,11 @@ Board :: Board(){
                     {' ',' ',' ',' ',' ',' ',' '},
                     {' ',' ',' ',' ',' ',' ',' '},
                     {' ',' ',' ',' ',' ',' ',' '},
-                    {' ',' ',' ',' ',' ',' ',' '},
-                    {' ',' ',' ',' ',' ',' ',' '},
-                    {' ',' ',' ',' ',' ',' ',' '},
-                    {' ',' ',' ',' ',' ',' ',' '},
-                    {' ','R','R','R',' ',' ',' '}};
+                    {' ','b',' ',' ',' ',' ',' '},
+                    {' ','a',' ',' ',' ',' ',' '},
+                    {' ','R',' ',' ',' ',' ',' '},
+                    {' ','R','a','a',' ',' ',' '},
+                    {'R','z','R','R',' ',' ',' '}};
 }
 
 Board :: Board(vector<vector<char>> matrix){
@@ -51,8 +51,6 @@ void Board :: printBoard(){
 void Board :: switchPieces(int r1, int c1, int r2, int c2){
     char p1 = this->getPiece(r1, c1);
     char p2 = this->getPiece(r2, c2);
-    cout << "Peca 1:" << p1 << ";";
-    cout << "Peca 2:" << p2 << ";";
     this->setPiece(r1, c1, p2);
     this->setPiece(r2,c2, p1);
 }
@@ -61,13 +59,16 @@ char Board :: getPieceBelow(int row, int col){
     return this->matrix.at(row+1).at(col);
 }
 
-void Board :: updateMatrix(){//TODO:mudar para: updateMatrix(vector<int> cols)  ---> apenas caem nas colunas das peças movidas ou destruidas
-    for (int col = (int) this->matrix.at(0).size()-1; col > -1 ; col --)//TODO:mudar para for (auto col: cols)
-        checkAbove(col);
+bool Board :: updateMatrix(vector<int> cols){
+   bool ret=false;
+   for (auto col: cols)
+        if(checkAbove(col))
+            ret=true;
+    return ret;
 }
     
-void Board :: checkAbove(int column){
-    bool flag=false;
+bool Board :: checkAbove(int column){
+    bool flag=false, ret=false;
     for(int row=this->matrix.size()-1; row >= 0; row--){
         if(this->matrix.at(row).at(column)==' '){
             flag=true;
@@ -76,8 +77,10 @@ void Board :: checkAbove(int column){
         else if (this->matrix.at(row).at(column)!=' ' && flag){
             row+=checkBelow(row, column);
             flag=false;
+            ret=true;
         }
     }
+    return ret;
 }
 
 int Board :: checkBelow(int r, int c){

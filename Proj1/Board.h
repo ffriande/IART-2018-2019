@@ -19,9 +19,9 @@ class Board{
         void setPiece(int row, int col, char piece);
         void printBoard();
         void switchPieces(int r1, int c1, int r2, int c2);
-        void updateMatrix();
+        bool updateMatrix(vector<int> cols);
         int checkBelow(int r, int c);
-        void checkAbove(int column);
+        bool checkAbove(int column);
 };
 
 #endif
