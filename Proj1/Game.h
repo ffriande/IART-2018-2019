@@ -28,6 +28,8 @@ class Game{
         bool checkVictory();
         void printStats();
         void testMoves(vector<vector<int>> moves);
+        vector<vector<int>> checkPiecesMove(int row, int col , char color);
+        vector<vector<int>> checkEmptyMove(int row, int col, char color);
 };
 
 #endif
