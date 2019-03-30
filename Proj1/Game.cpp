@@ -50,6 +50,7 @@ bool Game ::outsideBounds(int r, int c)
 
 void Game ::startGame()
 {
+    this->countPiecesNr();
     this->gameLoop();
     //this->board.updateMatrix();
 }
@@ -62,9 +63,15 @@ void Game ::gameLoop()
         cout << endl
              << endl;
         this->board.printBoard();
+        if (this->checkGameOver())
+        {
+            cout << "LOOSER!" << endl;
+            break;
+        }
         if (this->checkVictory())
         {
             cout << "Victory!" << endl;
+            this->printStats();
             break;
         }
         if (!this->board.updateMatrix(this->movedCols) && !this->verifyCombos())
@@ -79,6 +86,27 @@ void Game ::gameLoop()
     }
 }
 
+void Game ::countPiecesNr()
+{
+    char piece;
+    map<char, int>::iterator it;
+    for (int i = 0; i < (int)this->board.getBoard().size(); i++)
+    {
+        for (int j = 0; j < (int)this->board.getBoard().at(i).size(); j++)
+        {
+            piece = this->board.getBoard().at(i).at(j);
+            if (piece != ' ')
+            {
+                it = piecesNr.find(piece);
+                if (it != piecesNr.end())
+                    piecesNr[piece] += 1;
+                else
+                    piecesNr[piece] = 1;
+            }
+        }
+    }
+}
+
 bool Game ::checkCombosHorizontal(int i, int j, vector<vector<int>> &clear)
 {
     if (j + 2 < (int)this->board.getBoard().at(i).size())
@@ -86,11 +114,14 @@ bool Game ::checkCombosHorizontal(int i, int j, vector<vector<int>> &clear)
         if (this->board.getBoard().at(i).at(j) != ' ' && this->board.getBoard().at(i).at(j) == this->board.getBoard().at(i).at(j + 1) && this->board.getBoard().at(i).at(j) == this->board.getBoard().at(i).at(j + 2))
         {
             vector<int> a = {i, j};
+            if (!this->checkDuplicated(clear, a))
+                clear.push_back(a);
             vector<int> b = {i, j + 1};
+            if (!this->checkDuplicated(clear, b))
+                clear.push_back(b);
             vector<int> c = {i, j + 2};
-            clear.push_back(a);
-            clear.push_back(b);
-            clear.push_back(c);
+            if (!this->checkDuplicated(clear, c))
+                clear.push_back(c);
             return true;
         }
     }
@@ -104,13 +135,45 @@ bool Game ::checkCombosVertical(int i, int j, vector<vector<int>> &clear)
         if (this->board.getBoard().at(i).at(j) != ' ' && this->board.getBoard().at(i).at(j) == this->board.getBoard().at(i + 1).at(j) && this->board.getBoard().at(i).at(j) == this->board.getBoard().at(i + 2).at(j))
         {
             vector<int> a = {i, j};
+            if (!this->checkDuplicated(clear, a))
+                clear.push_back(a);
             vector<int> b = {i + 1, j};
+            if (!this->checkDuplicated(clear, b))
+                clear.push_back(b);
             vector<int> c = {i + 2, j};
-            clear.push_back(a);
-            clear.push_back(b);
-            clear.push_back(c);
+            if (!this->checkDuplicated(clear, c))
+                clear.push_back(c);
             return true;
         }
+    }
+    return false;
+}
+
+/**
+ * Checks if parameter coords is already inside of parameter clear
+ * if it is returns true if not false
+ */
+bool Game ::checkDuplicated(vector<vector<int>> clear, vector<int> coords)
+{
+    for (int i = 0; i < (int)clear.size(); i++)
+    {
+        if (clear.at(i) == coords)
+            return true;
+    }
+    return false;
+}
+
+bool Game ::checkGameOver()
+{
+    map<char, int>::iterator it;
+    for (it = piecesNr.begin(); it != piecesNr.end(); it++)
+    {
+        if (it->second < 0){
+            cout << "Error: PiecesNr < 0 on " << it->first << endl;
+            return true;
+        }
+        if (it->second < 3 && it->second > 0)
+            return true;
     }
     return false;
 }
@@ -135,8 +198,14 @@ bool Game ::verifyCombos()
 
 void Game ::clearCombos(vector<vector<int>> clear)
 {
+    char piece;
     for (int i = 0; i < (int)clear.size(); i++)
     {
+        piece = this->board.getBoard().at(clear.at(i).at(0)).at(clear.at(i).at(1));
+        if (this->piecesNr.find(piece)->second == 1)
+            this->piecesNr.erase(piece);
+        else
+            this->piecesNr[piece] -= 1;
         this->board.setPiece(clear.at(i).at(0), clear.at(i).at(1), ' ');
         this->movedCols.push_back(clear.at(i).at(1));
     }

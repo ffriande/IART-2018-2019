@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <map>
 #include "Board.h"
 #include <unistd.h>
 
@@ -12,6 +13,7 @@ class Game{
     private:
         Board board;
         vector<int> movedCols;
+        map<char, int> piecesNr;
         int nMoves;
     public:
         Game();
@@ -26,6 +28,9 @@ class Game{
         bool outsideBounds(int r, int c);
         vector<vector<int>> possibleMovesList(int i, int j);
         bool checkVictory();
+        bool checkGameOver();
+        bool checkDuplicated(vector<vector<int>> clear, vector<int> coords);
+        void countPiecesNr();
         void printStats();
         void testMoves(vector<vector<int>> moves);
         vector<vector<int>> checkPiecesMove(int row, int col , char color);
