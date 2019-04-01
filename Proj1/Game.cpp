@@ -9,8 +9,34 @@ Game ::Game()
 void Game ::welcomeMsg()
 {
     cout << "----- Welcome to BREAK THE ICE - SNOW WORLD -----" << endl;
+    chooseLevel();
 }
 
+
+void Game ::chooseLevel()
+{
+    string level;
+    string filename;
+    cout << "Choose level (number + enter)" << endl;
+    cin >> level;
+    filename= "level"+level+".txt";
+    ifstream myReadFile;
+    myReadFile.open(filename);
+    vector<vector<char>> matrix;
+    string line;
+    vector<char> row;
+    if (myReadFile.is_open()) {
+        while (getline(myReadFile, line)) {
+            row.clear();
+            for(char& c : line)
+                if (c!='\n' && c!='|')
+                    row.push_back(c);
+            matrix.push_back(row);
+        }
+    this->board = Board(matrix);
+    }
+    myReadFile.close();
+}
 void Game ::swapPieces()
 {
     cout << "Swap Pieces" << endl;

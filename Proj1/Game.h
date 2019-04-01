@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <fstream>
 #include <map>
 #include "Board.h"
 #include <unistd.h>
@@ -36,6 +37,9 @@ class Game{
         void testMoves(vector<vector<int>> moves);
         vector<vector<int>> checkPiecesMove(int row, int col , char color);
         vector<vector<int>> checkEmptyMove(int row, int col, char color);
+        Board getBoard(){return this->board;}
+        void setBoard(Board newBoard){this->board = newBoard;}
+        void chooseLevel();
 };
 
 #endif
