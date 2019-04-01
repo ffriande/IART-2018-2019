@@ -15,6 +15,7 @@ void Game ::swapPieces()
 {
     cout << "Swap Pieces" << endl;
     int r1, c1, r2, c2;
+    vector<int> newPos;
     do
     {
         do
@@ -29,7 +30,10 @@ void Game ::swapPieces()
         cin >> r2;
         cout << "Piece 2 : Col" << endl;
         cin >> c2;
-    } while (this->outsideBounds(r2, c2) && cout << "\nNot valid. Choose again:\n");
+        newPos.clear();
+        newPos.push_back(r2);
+        newPos.push_back(c2);
+    } while ((this->outsideBounds(r2, c2) || !this->isPossible(newPos, this->possibleMovesList(r1,c1))) && cout << "\nNot valid. Choose again:\n");
 
     if (this->board.getPiece(r2, c2) == ' ')
     {
@@ -52,7 +56,6 @@ void Game ::startGame()
 {
     this->countPiecesNr();
     this->gameLoop();
-    //this->board.updateMatrix();
 }
 
 void Game ::gameLoop()
@@ -65,7 +68,7 @@ void Game ::gameLoop()
         this->board.printBoard();
         if (this->checkGameOver())
         {
-            cout << "LOOSER!" << endl;
+            cout << "You Lost ..." << endl;
             break;
         }
         if (this->checkVictory())
@@ -220,23 +223,47 @@ vector<vector<int>> Game ::possibleMovesList(int row, int col)
         return moves;
     }
     // Piece top
-    moves.insert(moves.end(), checkPiecesMove(row - 1, col, color).begin(), checkPiecesMove(row - 1, col, color).end());
-
+    if (!this->outsideBounds(row - 1, col)){
+        if (this->board.getBoard().at(row - 1).at(col) != ' ' && this->board.getBoard().at(row - 1).at(col) != color){
+            vector<int>move ={row - 1, col};
+            moves.push_back(move);
+        }
+    }
     // Piece bottom
-    moves.insert(moves.end(), checkPiecesMove(row + 1, col, color).begin(), checkPiecesMove(row + 1, col, color).end());
-
+    if (!this->outsideBounds(row + 1, col)){
+        if (this->board.getBoard().at(row + 1).at(col) != ' ' && this->board.getBoard().at(row + 1).at(col) != color){
+            vector<int>move ={row + 1, col};
+            moves.push_back(move);
+        }
+    }
     // Piece left
-    moves.insert(moves.end(), checkPiecesMove(row, col - 1, color).begin(), checkPiecesMove(row, col - 1, color).end());
-
+    if (!this->outsideBounds(row, col - 1)){
+        if (this->board.getBoard().at(row).at(col - 1) != ' ' && this->board.getBoard().at(row).at(col - 1) != color){
+            vector<int>move ={row, col - 1};
+            moves.push_back(move);
+        }
+    }
     // Piece right
-    moves.insert(moves.end(), checkPiecesMove(row, col + 1, color).begin(), checkPiecesMove(row, col + 1, color).end());
-
+    if (!this->outsideBounds(row, col + 1)){
+        if (this->board.getBoard().at(row).at(col + 1) != ' ' && this->board.getBoard().at(row).at(col + 1) != color){
+            vector<int>move ={row, col + 1};
+            moves.push_back(move);
+        }
+    }
     // Empty Left
-    moves.insert(moves.end(), checkEmptyMove(row, col - 1, color).begin(), checkEmptyMove(row, col - 1, color).end());
-
+    if (!this->outsideBounds(row, col - 1)){
+        if (this->board.getBoard().at(row).at(col - 1) == ' '){
+            vector<int>move ={row, col - 1};
+            moves.push_back(move);
+        }
+    }
     // Empty Right
-    moves.insert(moves.end(), checkEmptyMove(row, col + 1, color).begin(), checkEmptyMove(row, col + 1, color).end());
-
+    if (!this->outsideBounds(row, col + 1)){
+        if (this->board.getBoard().at(row).at(col + 1) == ' '){
+            vector<int>move ={row, col + 1};
+            moves.push_back(move);
+        }
+    }
     return moves;
 }
 
@@ -297,4 +324,15 @@ void Game ::testMoves(vector<vector<int>> moves)
         }
         cout << endl;
     }
+}
+
+bool Game :: isPossible(vector<int> newPos, vector<vector<int>> list){
+    char newR = newPos[0];
+    char newC = newPos[1];
+    for (int i = 0;i < list.size(); i++){
+        if (list[i][0] == newR && list[i][1] == newC){
+            return true;
+        }
+    }
+    return false;
 }

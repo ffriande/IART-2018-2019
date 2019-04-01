@@ -27,6 +27,7 @@ class Game{
         void clearCombos(vector<vector<int>> clear);
         bool outsideBounds(int r, int c);
         vector<vector<int>> possibleMovesList(int i, int j);
+        bool isPossible(vector<int> newPos, vector<vector<int>> list);
         bool checkVictory();
         bool checkGameOver();
         bool checkDuplicated(vector<vector<int>> clear, vector<int> coords);
