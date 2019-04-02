@@ -1,59 +1,233 @@
 #include "Graph.h"
 
-Graph::Graph(int V) 
-{ 
-	this->V = V; 
-	adj = new list<int>[V]; 
-} 
+int idCount = 0;
+vector<pair<pair<Board, int>, pair<int, bool>>> dfsList;
+int bfsIdCount = 0;
+vector<pair<pair<Board, int>, pair<int, bool>>> bfsList;
+int greedyCount = 0;
+vector<pair<pair<Board, int>, pair<int, bool>>> greedyList;
 
-void Graph::addEdge(int v, int w) 
-{ 
-	adj[v].push_back(w); // Add w to v’s list. 
-} 
+void startAI(){
 
-void Graph::DFSUtil(int v, bool visited[]) 
-{ 
-	// Mark the current node as visited and 
-	// print it 
-	visited[v] = true; 
-	cout << v << " "; 
+}
 
-	// Recur for all the vertices adjacent 
-	// to this vertex 
-	list<int>::iterator i; 
-	for (i = adj[v].begin(); i != adj[v].end(); ++i) 
-		if (!visited[*i]) 
-			DFSUtil(*i, visited); 
-} 
+void dfs(Board currBoard){
 
-// DFS traversal of the vertices reachable from v. 
-// It uses recursive DFSUtil() 
-void Graph::DFS(int v) 
-{ 
-	// Mark all the vertices as not visited 
-	bool *visited = new bool[V]; 
-	for (int i = 0; i < V; i++) 
-		visited[i] = false; 
+    pair<Board, int> p1;
+    p1.first = currBoard;
+    p1.second = idCount++;
+    pair<int, bool> p2;
+    p2.first = -1;
+    p2.second = false;
+    pair<pair<Board, int>, pair<int, bool>> firstPair;
+    firstPair.first = p1;
+    firstPair.second = p2;
+    dfsList.push_back(firstPair);
 
-	// Call the recursive helper function 
-	// to print DFS traversal 
-	DFSUtil(v, visited); 
-} 
+    for (int a = 0; a < currBoard.getBoard().size(); a++){
+        for (int b = 0; b < currBoard.getBoard()[a].size(); b++){
+            cout << currBoard.getBoard()[a][b] << " | ";
+        }
+        cout << endl;
+    }
+    cout << "------------------------" << endl;
 
-int testDFS() 
-{ 
-	// Create a graph given in the above diagram 
-	Graph g(4); 
-	g.addEdge(0, 1); 
-	g.addEdge(0, 2); 
-	g.addEdge(1, 2); 
-	g.addEdge(2, 0); 
-	g.addEdge(2, 3); 
-	g.addEdge(3, 3); 
+    if (checkVictory(currBoard)){
+        cout << "Victory!!!" << endl;
+        exit(0);
+    }
 
-	cout << "Following is Depth First Traversal"
-			" (starting from vertex 2) \n"; 
-	g.DFS(2); 
+    vector<Board> nextBoardsPiece;
+    vector<Board> nextBoards;
+    for (int i = 0; i < getPiecesList(currBoard).size(); i++){
+        nextBoardsPiece = getNextMoveBoards(getPiecesList(currBoard)[i], currBoard);
+        for (int j = 0; j < nextBoardsPiece.size(); j++){
+            nextBoards.push_back(nextBoardsPiece[j]);
+        }
+    }
 
-	return 0; 
-} 
+    for (int i = 0; i < nextBoards.size(); i++){
+        if(!isDFS_visited(nextBoards[i])){
+            dfs(nextBoards[i]);
+        }
+
+    }
+}
+
+bool isDFS_visited(Board board){
+    int count = 0;
+    for (int i = 0; i < dfsList.size(); i++){
+        vector<vector<char>> dfsBoard = dfsList[i].first.first.getBoard();
+        vector<vector<char>> matrix = board.getBoard();
+        if (compareMatrix(dfsBoard, matrix))
+            count++;
+    }
+    if (count != 0){
+        return true;
+    }
+    return false;
+}
+
+bool compareMatrix(vector<vector<char>> dfsBoard, vector<vector<char>> matrix){
+    for (int z = 0; z < matrix.size(); z++){
+        for (int x = 0; x < matrix[x].size(); x++){
+            if (matrix[z][x] != dfsBoard[z][x]){
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void bfs(Board board){
+    pair<Board, int> p1;
+    p1.first = board;
+    p1.second = bfsIdCount++;
+    pair<int, bool> p2;
+    p2.first = -1;
+    p2.second = false;
+    pair<pair<Board, int>, pair<int, bool>> firstPair;
+    firstPair.first = p1;
+    firstPair.second = p2;
+    bfsList.push_back(firstPair);
+    list<Board> bfsQueue; 
+    bfsQueue.push_back(board);
+
+    if (checkVictory(board)){
+        cout << "Victory!!!" << endl;
+        exit(0);
+    }  
+  
+    while(!bfsQueue.empty()) 
+    { 
+        board = bfsQueue.front(); 
+
+        for (int a = 0; a < board.getBoard().size(); a++){
+            for (int b = 0; b < board.getBoard()[a].size(); b++){
+                cout << board.getBoard()[a][b] << " | ";
+            }
+            cout << endl;
+        }
+        cout << "------------------------" << endl;
+        bfsQueue.pop_front(); 
+
+
+        vector<Board> nextBoardsPiece;
+        vector<Board> nextBoards;
+        for (int i = 0; i < getPiecesList(board).size(); i++){
+            nextBoardsPiece = getNextMoveBoards(getPiecesList(board)[i], board);
+            for (int j = 0; j < nextBoardsPiece.size(); j++){
+                nextBoards.push_back(nextBoardsPiece[j]);
+            }
+        }
+
+        for (int i = 0; i < nextBoards.size(); i++){
+            if(!isBFS_visited(nextBoards[i])){
+                bfs(nextBoards[i]);
+            }
+
+        }
+    } 
+}
+
+bool isBFS_visited(Board board){
+    int count = 0;
+    for (int i = 0; i < bfsList.size(); i++){
+        vector<vector<char>> bfsBoard = bfsList[i].first.first.getBoard();
+        vector<vector<char>> matrix = board.getBoard();
+        if (compareMatrix(bfsBoard, matrix))
+            count++;
+    }
+    if (count != 0){
+        return true;
+    }
+    return false;
+}
+
+void greedy(Board board){
+    pair<Board, int> p1;
+    p1.first = board;
+    p1.second = greedyCount++;
+    pair<int, bool> p2;
+    p2.first = -1;
+    p2.second = false;
+    pair<pair<Board, int>, pair<int, bool>> firstPair;
+    firstPair.first = p1;
+    firstPair.second = p2;
+    greedyList.push_back(firstPair);
+
+    for (int a = 0; a < board.getBoard().size(); a++){
+        for (int b = 0; b < board.getBoard()[a].size(); b++){
+            cout << board.getBoard()[a][b] << " | ";
+        }
+        cout << endl;
+    }
+    cout << "------------------------" << endl;
+
+    if (checkVictory(board)){
+        cout << "Victory!!!" << endl;
+        exit(0);
+    }
+
+    vector<Board> nextBoardsPiece;
+    vector<Board> nextBoards;
+    for (int i = 0; i < getPiecesList(board).size(); i++){
+        nextBoardsPiece = getNextMoveBoards(getPiecesList(board)[i], board);
+        for (int j = 0; j < nextBoardsPiece.size(); j++){
+            nextBoards.push_back(nextBoardsPiece[j]);
+        }
+    }
+
+    vector<double> heuristics;
+    for (int i = 0; i < nextBoards.size(); i++){
+        heuristics.push_back(heuristic(nextBoards[i]));
+    }
+    int index = getBestGreedyMove(heuristics);
+
+    for (int i = 0; i < nextBoards.size(); i++){
+        if(!isGreedy_visited(nextBoards[index])){
+            greedy(nextBoards[index]);
+        }
+        else{
+            greedy(nextBoards[getRandomMove(heuristics)]);
+        }
+
+    }
+
+}
+
+// The less the value the better
+double heuristic(Board board){
+    vector<vector<int>> v = getPiecesList(board);
+    return v.size()/5;
+}
+
+int getBestGreedyMove(vector<double> heuristics){
+    int index;
+    int min = 9999;
+    for (int i = 0; i < heuristics.size(); i++){
+        if (heuristics[i] < min){
+            min = heuristics[i];
+            index = i;
+        }
+    }
+    return index;
+}
+
+int getRandomMove(vector<double> heuristics){
+    return rand() % heuristics.size();
+}
+
+bool isGreedy_visited(Board board){
+    int count = 0;
+    for (int i = 0; i < greedyList.size(); i++){
+        vector<vector<char>> bfsBoard = greedyList[i].first.first.getBoard();
+        vector<vector<char>> matrix = board.getBoard();
+        if (compareMatrix(bfsBoard, matrix))
+            count++;
+    }
+    if (count != 0){
+        return true;
+    }
+    return false;
+}
