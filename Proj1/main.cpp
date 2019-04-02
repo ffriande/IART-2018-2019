@@ -1,8 +1,10 @@
 #include <iostream>
+#include <chrono>
 #include "Game.h"
 #include "Graph.h"
 
 using namespace std;
+
 
 void selectAI(Game game){
     cout << "Select Game Mode" << endl;
@@ -13,16 +15,16 @@ void selectAI(Game game){
     int input;
     cin >> input;
     if (input == 1){
-        bfs(game.getBoard());
+        dfs(game.getBoard());
     }
     else if (input == 2){
-        dfs(game.getBoard());
+        bfs(game.getBoard());
     }
     else if (input == 3){
         greedy(game.getBoard());
     }
     else if (input == 4){
-        exit(0);
+        aStar(game.getBoard());
     }
 }
 

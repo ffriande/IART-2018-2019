@@ -2,6 +2,7 @@
 #define GRAPH_H
 
 #include<iostream> 
+#include <chrono>
 #include<list> 
 #include <vector>
 #include <utility> 
@@ -10,6 +11,7 @@
 #include "Utils.h"
 
 using namespace std; 
+using namespace std::chrono;
 
 void startAI();
 void dfs(Board board);
@@ -22,5 +24,7 @@ double heuristic(Board board);
 int getBestGreedyMove(vector<double> heuristics);
 int getRandomMove(vector<double> heuristics);
 bool isGreedy_visited(Board board);
+void aStar(Board board);
+Board calculateF(Board board);
 
 #endif
