@@ -8,6 +8,7 @@ using namespace std;
 
 class Board{
     private:
+        /*Vector of vector of char that represents the board.*/
         vector<vector<char> > matrix;
     public:
         Board();

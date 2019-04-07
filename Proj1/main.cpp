@@ -1,11 +1,19 @@
 #include <iostream>
 #include <chrono>
 #include "Game.h"
-#include "Graph.h"
+#include "AI.h"
 
 using namespace std;
 
-
+void selectAstarHeuristic(Game game){
+    cout << "Select A* Algorithm heuristics function" << endl;
+    cout << "1." << endl;
+    cout << "2." << endl;
+    cout << "3." << endl;
+    int input;
+    cin >> input;
+    aStar(game, input);
+}
 void selectAI(Game game){
     cout << "Select Game Mode" << endl;
     cout << "1. BFS" << endl;
@@ -15,18 +23,19 @@ void selectAI(Game game){
     int input;
     cin >> input;
     if (input == 1){
-        dfs(game.getBoard());
+        bfs(game);
     }
     else if (input == 2){
-        bfs(game.getBoard());
+        dfs(game);
     }
     else if (input == 3){
-        greedy(game.getBoard());
+        greedy(game);
     }
     else if (input == 4){
-        aStar(game.getBoard());
+        selectAstarHeuristic(game);
     }
 }
+
 
 void selectMode(Game game){
     cout << "Select Game Mode" << endl;
@@ -39,6 +48,9 @@ void selectMode(Game game){
         game.startGame();
     }
     else if (input == 2){
+        game.chooseLevel();
+        game.countPiecesNr();
+        startAI(game);
         selectAI(game);
     }
 
