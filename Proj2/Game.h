@@ -24,6 +24,10 @@ class Game
   public:
     Game();
     void printBoard();
+    void askMove(int player);
+    void makeMove(int player, int typeMove, int r, int c);
+    bool validChoose(int player, int firstChoose, int row, int column);
+    void gameLoopPvP();
 };
 
 #endif
