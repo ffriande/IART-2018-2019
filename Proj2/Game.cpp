@@ -63,20 +63,12 @@ void Game::askMove(int player){
     }else
     {
         cout << "Choose one of your pieces.";
-        placeOrMove=2;
+        makeMove(player,PLACE,NULL,NULL);
     }
     int column;
     int row;
     do{
-        do{
-            cout << "Select a Column (From 0 to 6):\n";
-            cin >> column;
-        }while(column < 0 && column > 6);
-
-        do{
-            cout << "Select a Row (From 0 to 6):\n";
-            cin >> row;
-        }while(row < 0 && row > 6);
+       validInput(row, column);
     }while(!validChoose(player,placeOrMove,row,column) && cout<< "\nInvalid input\n");
 
     if(placeOrMove==2){
@@ -92,7 +84,7 @@ void Game::askMove(int player){
         makeMove(player,typeMove,row,column);
     }else
     {
-        makeMove(player,PLACE,row,column);
+
     }
 }
 
@@ -101,43 +93,22 @@ void Game::makeMove(int player, int typeMove, int r, int c){
     int destRow, destCol;
     if(typeMove==PLACE){
         do{
-            do{
-                cout << "Column (From 0 to 6):\n";
-                cin >> destCol;
-            }while(destCol < 0 && destCol > 6);
-            do{
-                cout << "Row (From 0 to 6):\n";
-                cin >> destRow;
-            }while(destRow < 0 && destRow > 6);
-        }while(!validChoose(player, PLACE, destRow, destCol) && cout<< "\nInvalid input\n"); 
+            validInput(destRow, destCol);
+        }while(!validChoose(player, PLACE, destRow, destCol) && cout<< "\nInvalid destination input\n"); 
     }
 
     else if(typeMove==MOVE){
-        do{
-            do{
-                cout << "Column (From 0 to 6):\n";
-                cin >> destCol;
-            }while(destCol < 0 && destCol > 6);
-            do{
-                cout << "Row (From 0 to 6):\n";
-                cin >> destRow;
-            }while(destRow < 0 && destRow > 6);
-        }while(!validChooseMove(r,c,destRow,destCol) && cout<< "\nInvalid input\n"); 
+        do{            
+            validInput(destRow, destCol);
+        }while(!validChooseMove(r,c,destRow,destCol) && cout<< "\nInvalid destination input\n"); 
 
         this->board.at(r).at(c)=0;
         this->board.at(destRow).at(destCol)=player;
     }
     else if(typeMove==FLY){
         do{
-            do{
-                cout << "Column (From 0 to 6):\n";
-                cin >> destCol;
-            }while(destCol < 0 && destCol > 6);
-            do{
-                cout << "Row (From 0 to 6):\n";
-                cin >> destRow;
-            }while(destRow < 0 && destRow > 6);
-        }while(!validChoose(player,1,destRow,destCol) && cout<< "\nInvalid input\n"); 
+            validInput(destRow, destCol);
+        }while(!validChoose(player,1,destRow,destCol) && cout<< "\nInvalid destination input\n"); 
 
         this->board.at(r).at(c)=0;
         this->board.at(destRow).at(destCol)=player;
@@ -146,6 +117,7 @@ void Game::makeMove(int player, int typeMove, int r, int c){
 
 bool Game::validChoose(int player, int placeOrMove, int row, int column){
     if(placeOrMove==1){
+        cout<< (this->board.at(row).at(column)!=0);
         if(this->board.at(row).at(column)!=0)
             return false;
     }else
@@ -158,21 +130,21 @@ bool Game::validChoose(int player, int placeOrMove, int row, int column){
 
 //for moving, not flying
 bool Game::validChooseMove(int row, int column, int destRow, int destColumn){
-    if((destColumn==column && (destRow==row+1 || destRow==row-1)) || (destRow==row && (destColumn==column+1 || destColumn==column-1)) && this->board.at(destRow).at(destColumn)==0)
+    if(((destColumn==column && (destRow==row+1 || destRow==row-1)) || (destRow==row && (destColumn==column+1 || destColumn==column-1))) && this->board.at(destRow).at(destColumn)==0)
         return true;
     return false;
 }
 
 
-void validInput(int &row, int &col){
+void Game::validInput(int &row, int &col){
             do{
                 cout << "Column (From 0 to 6):\n";
                 cin >> col;
-            }while((col < 0 && col > 6) && cout<< "\nInvalid column\n");
+            }while((col < 0 || col > 6) && cout<< "\nInvalid column\n");
             do{
                 cout << "Row (From 0 to 6):\n";
                 cin >> row;
-            }while((row < 0 && row > 6) && cout<< "\nInvalid row\n");
+            }while((row < 0 || row > 6) && cout<< "\nInvalid row\n");
 }
 
 void Game::gameLoopPvP()
