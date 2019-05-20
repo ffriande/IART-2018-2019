@@ -21,6 +21,10 @@ class Game
         {0, -1, -1, 0, -1, -1, 0}};
     //total number of pieces inserted in the board. it does not count the actual number of pieces in the board.
     int numberOfPiecesInserted;
+    //number of red pieces inserted.
+    int numberOfRedInserted;
+    //number of white pieces inserted.
+    int numberOfWhiteInserted;
     //number of red pieces in the board.
     int numberOfRedPieces;
     //number of white pieces in the board.
@@ -30,6 +34,10 @@ class Game
     void printBoard();
     void askMove(int player);
     void makeMove(int player, int r, int c, vector<vector<int>> validMoves);
+    void askElimination(int player, int row, int column);
+    vector<vector<int>> check3InRow(int player, int row, int column);
+    bool checkConnected(vector<vector<int>> coords, int row, int column);
+    vector<vector<int>> validElimination(int player);
     bool validChoose(int player, int firstChoose, int row, int column);
     bool vectorMember(vector<vector<int>> analyse, vector<int> coord);
     bool validDest(int player, int typeMove, int row, int column, int prevRow, int prevColumn);

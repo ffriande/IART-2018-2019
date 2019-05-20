@@ -7,6 +7,8 @@
  * Constructor to start a new game.
  */
 Game::Game(){
+    this->numberOfRedInserted=0;
+    this->numberOfWhiteInserted=0;
     this->numberOfRedPieces=0;
     this->numberOfWhitePieces=0;
     this->numberOfPiecesInserted=0;
@@ -52,7 +54,7 @@ void Game::printBoard()
 
 void printvector(vector<vector<int>> a){
     for(auto i:a){
-        cout << "Choose: Col: " << i.at(1) << " Row: " << i.at(0) << endl; 
+        cout << "Col: " << i.at(1) << " Row: " << i.at(0) << endl; 
     }
 }
 
@@ -68,9 +70,9 @@ void Game::askMove(int player){
     if(this->numberOfPiecesInserted != 18){ 
         cout << "You will choose a place to insert a piece.\n";
         if(player == 1)
-            cout << "You have " << (9-this->numberOfWhitePieces) << " pieces left to insert.\n";
+            cout << "You have " << (18-this->numberOfPiecesInserted)/2 << " pieces left to insert.\n";
         if(player == 2)
-            cout << "You have " << (9-this->numberOfRedPieces) << " pieces left to insert.\n";
+            cout << "You have " << (18-this->numberOfPiecesInserted+1)/2 << " pieces left to insert.\n";
         placeOrMove=1;
     }else
     {
@@ -97,10 +99,18 @@ void Game::askMove(int player){
     {
         this->board.at(row).at(column)=player;
         this->numberOfPiecesInserted++;
-        if(player==1)
+        if(player==1){
+            this->numberOfWhiteInserted++;
             this->numberOfWhitePieces++;
-        else
+            if(numberOfWhitePieces>=3)
+                askElimination(player, row, column);
+        }
+        else{
+            this->numberOfRedInserted++;
             this->numberOfRedPieces++;
+            if(numberOfRedPieces>=3)
+                askElimination(player, row, column);
+        }
     }
 }
 
@@ -111,7 +121,6 @@ void Game::askMove(int player){
  */
 void Game::makeMove(int player, int row, int column, vector<vector<int>> validMoves){
     int destRow, destCol;
-    printvector(validMoves);
     do{
         if(player == 1 && this->numberOfWhitePieces == 3)
             cout << "Choose an empty space (O) to fly.\n";
@@ -122,8 +131,122 @@ void Game::makeMove(int player, int row, int column, vector<vector<int>> validMo
         }
         validInput(destRow,destCol);
     }while(!vectorMember(validMoves,{destRow,destCol}) && cout<< "\nInvalid choose\n");
-    
+    this->board.at(row).at(column)=0;
+    this->board.at(destRow).at(destCol)=player;
+    askElimination(player, destRow, destCol);
 }
+
+/**
+ * Handles the verification of 3 in a row from player, and gives the output and handles the input.
+ */
+void Game::askElimination(int player, int row, int column){
+    vector<vector<int>> result = check3InRow(player,row,column);
+    vector<vector<int>> pieces3InRow;
+    if(result.size()==3){
+        printBoard();
+        if(player==1){
+            cout << "WHITE player turn.\n";
+        }
+        else{
+            cout << "RED player turn.\n";
+        }
+        vector<vector<int>> validElim=validElimination(player);
+        if(validElim.size()==0)
+            cout << "You have no valid pieces form the other player to remove.\n";
+        else{
+            cout << "You made 3 in a row.\nYou can now choose a piece from the other player to eliminate (it can not belong to a 3 in a row).\n";
+            int eliRow;
+            int eliCol;
+            do{
+                validInput(eliRow,eliCol);
+            }while(!vectorMember(validElim,{eliRow,eliCol}) && cout << "Invalid choose\n");
+            this->board.at(eliRow).at(eliCol)=0;
+            if(player == 1)
+                this->numberOfRedPieces--;
+            else
+                this->numberOfWhitePieces--;
+        }
+    }
+}
+
+/**
+ * Gets all the positions where a piece can be eliminated.
+ */
+vector<vector<int>> Game::validElimination(int player){
+    vector<vector<int>> valid;
+    vector<vector<int>> pieces;
+    vector<vector<int>> pieces3Row;
+    int symbol;
+    if(player==1)
+        symbol=2;
+    else
+        symbol=1;
+
+    pieces=getPiecesOf(symbol);
+    for(auto it:pieces){
+        if(!vectorMember(pieces3Row,it)){
+            vector<vector<int>> aux=check3InRow(symbol,it.at(0),it.at(1));
+            if(aux.size()==3){
+                for(auto itaux:aux){
+                    if(!vectorMember(pieces3Row,itaux))
+                        pieces3Row.push_back(itaux);
+                }
+            }else
+                valid.push_back(it);
+        }
+    }
+    return valid;
+}
+
+/**cout << "horizontal\n";
+ * Checks if player is doing 3 in a row, on the position row column, if yes returns the vector with the coords of the pieces in that 3 in row.
+ * Returns a empty vector if not
+ */
+vector<vector<int>> Game::check3InRow(int player, int row, int column){
+    vector<vector<int>> horizontal={{row,column}};
+    vector<vector<int>> vertical={{row,column}};
+    for(int i=1; i<7; i++){
+        if((row+i) < (int)this->board.size() && this->board.at(row+i).at(column) == player && checkConnected(vertical,(row+i),column)){
+            vector<int> coord = {row+i,column};
+            if(!vectorMember(vertical, coord))
+                vertical.push_back(coord);
+        }
+        if((row-i) >= 0 && this->board.at(row-i).at(column) == player && checkConnected(vertical,(row-i),column)){
+            vector<int> coord = {row-i,column};
+            if(!vectorMember(vertical, coord))
+                vertical.push_back(coord);
+        }
+        if((column+i) < (int)this->board.at(0).size() && this->board.at(row).at(column+i) == player && checkConnected(horizontal,row,(column+i))){
+            vector<int> coord = {row,column+i};
+            if(!vectorMember(horizontal, coord))
+                horizontal.push_back(coord);
+        }
+        if((column-i) >= 0 && this->board.at(row).at(column-i) == player && checkConnected(horizontal,row,(column-i))){
+            vector<int> coord = {row,column-i};
+            if(!vectorMember(horizontal, coord))
+                horizontal.push_back(coord);
+        }
+        if(horizontal.size()==3)
+            return horizontal;
+        if(vertical.size()==3)
+            return vertical;
+    }
+    return {{}};
+}
+
+/**
+ * Checks if cell (row,column) is adjacent to any of the coords in the vector coords.
+ * Returns true if yes, false if not.
+ */
+bool Game::checkConnected(vector<vector<int>> coords, int row, int column){
+    for(auto it:coords){
+        if(checkAdjacent(it.at(0), it.at(1), row, column))
+            return true;
+    }
+    return false;
+}
+
+
 
 /**
  * Auxiliary function that sees if coord is member of analyse vector.
@@ -283,14 +406,14 @@ bool Game::adjacentVertical(int col, int row, int rowDif){
  * Function with a loop that only accepts inputs within the limits of the board.
  */
 void Game::validInput(int &row, int &col){
-            do{
-                cout << "Column (From 0 to 6):\n";
-                cin >> col;
-            }while((col < 0 || col > 6) && cout<< "\nInvalid column\n");
-            do{
-                cout << "Row (From 0 to 6):\n";
-                cin >> row;
-            }while((row < 0 || row > 6) && cout<< "\nInvalid row\n");
+    do{
+        do{
+            cout << "Column (From 0 to 6):\n";
+            cin >> col;
+        }while((col < 0 || col > 6) && cout<< "\nInvalid column\n");
+        cout << "Row (From 0 to 6):\n";
+        cin >> row;
+    }while((row < 0 || row > 6) && cout<< "\nInvalid row\n");
 }
 
 /**
