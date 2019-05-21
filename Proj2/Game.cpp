@@ -3,12 +3,24 @@
 #define MOVE 2
 #define FLY 3
 
+bool Game::isInsert(){
+    if(isInsert())
+        return true;
+    return false;
+}
+
+int Game::getnrPlayerPieces(int player){
+    if(player==1)
+        return this->numberOfWhitePieces;
+    else
+        return this->numberOfRedPieces;
+}
+
+
 /**
  * Constructor to start a new game.
  */
 Game::Game(){
-    this->numberOfRedInserted=0;
-    this->numberOfWhiteInserted=0;
     this->numberOfRedPieces=0;
     this->numberOfWhitePieces=0;
     this->numberOfPiecesInserted=0;
@@ -100,13 +112,11 @@ void Game::askMove(int player){
         this->board.at(row).at(column)=player;
         this->numberOfPiecesInserted++;
         if(player==1){
-            this->numberOfWhiteInserted++;
             this->numberOfWhitePieces++;
             if(numberOfWhitePieces>=3)
                 askElimination(player, row, column);
         }
         else{
-            this->numberOfRedInserted++;
             this->numberOfRedPieces++;
             if(numberOfRedPieces>=3)
                 askElimination(player, row, column);
@@ -235,6 +245,70 @@ vector<vector<int>> Game::check3InRow(int player, int row, int column){
 }
 
 /**
+ * counts the number of times that, in a row or column, player is 1 from making 3 in a row, it can be 1,0,1/1,1,0/0,1,1
+ */
+int Game::count2inRow(int player){
+    int n=0;
+    for(int r=0; r<this->board.size();r++){
+        for(int c=0; c<this->board.at(r).size();c++){
+            int symbol=this->board.at(r).at(c);
+            if(symbol==0 || symbol==player){
+                if(check2inRowHorizontal(player,r,c))
+                    n++;
+                if(check2inRowVertical(player,r,c))
+                    n++;
+            }
+        }
+    }
+}
+
+/**
+ * Function that checks if a player has 2 pieces in a given row, returns true if yes, false if not.
+ */
+bool Game::check2inRowHorizontal(int player, int r, int c){
+    int nrpieces=0;
+    int nrofzeros=0;
+    for(int i=0; (c+i)<this->board.at(0).size(); i++){
+        if(nrofzeros==2)
+            return false;
+        int symbol=this->board.at(r).at(c+i);
+        if(symbol==-3)
+            return false;
+        else if(symbol == player)
+            nrpieces++;
+        else if(symbol == 0)
+            nrofzeros++;
+    }
+    if(nrpieces==2 && nrofzeros==0){
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Function that checks if a player has 2 pieces in a given column, returns true if yes, false if not.
+ */
+bool Game::check2inRowVertical(int player, int r, int c){
+    int nrpieces=0;
+    int nrofzeros=0;
+    for(int i=0; (r+i)<this->board.size(); i++){
+        if(nrofzeros==2)
+            return false;
+        int symbol=this->board.at(r+i).at(c);
+        if(symbol==-3)
+            return false;
+        else if(symbol == player)
+            nrpieces++;
+        else if(symbol == 0)
+            nrofzeros++;
+    }
+    if(nrpieces==2 && nrofzeros==0){
+        return true;
+    }
+    return false;
+}
+
+/**
  * Checks if cell (row,column) is adjacent to any of the coords in the vector coords.
  * Returns true if yes, false if not.
  */
@@ -266,7 +340,7 @@ bool Game::vectorMember(vector<vector<int>> analyse, vector<int> coord){
 vector<vector<int>> Game::getFirstChoice(int player){
     vector<vector<int>> coords;
     int symbol;
-    if(this->numberOfPiecesInserted!=18)
+    if(isInsert())
         symbol=0;
     else
         symbol=player;
@@ -432,12 +506,18 @@ bool Game::checkNoMovesLeft(int player){
  * Checks if the player loses the game.
  */
 bool Game::checkLose(int player){
-    if(this->numberOfPiecesInserted!=18)
+    if(isInsert())
         return false;
     if(player==1 && this->numberOfWhitePieces<3)
         return true;
     if(player==2 && this->numberOfRedPieces<3)
         return true;
+    if(!isInsert()){
+        if(player==1 && this->numberOfWhitePieces<3)
+            return true;
+        if(player==2 && this->numberOfRedPieces<3)
+            return true;
+    }
     if(checkNoMovesLeft(player))
         return true;
     return false;

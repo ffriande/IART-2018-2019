@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <climits>
 
 using namespace std;
 
@@ -21,20 +22,21 @@ class Game
         {0, -1, -1, 0, -1, -1, 0}};
     //total number of pieces inserted in the board. it does not count the actual number of pieces in the board.
     int numberOfPiecesInserted;
-    //number of red pieces inserted.
-    int numberOfRedInserted;
-    //number of white pieces inserted.
-    int numberOfWhiteInserted;
     //number of red pieces in the board.
     int numberOfRedPieces;
     //number of white pieces in the board.
     int numberOfWhitePieces;
   public:
     Game();
+    bool isInsert();
+    int getnrPlayerPieces(int player);
     void printBoard();
     void askMove(int player);
     void makeMove(int player, int r, int c, vector<vector<int>> validMoves);
     void askElimination(int player, int row, int column);
+    int count2inRow(int player);
+    bool check2inRowHorizontal(int player, int r, int c);
+    bool check2inRowVertical(int player, int r, int c);
     vector<vector<int>> check3InRow(int player, int row, int column);
     bool checkConnected(vector<vector<int>> coords, int row, int column);
     vector<vector<int>> validElimination(int player);
