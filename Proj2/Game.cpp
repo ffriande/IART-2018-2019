@@ -627,6 +627,7 @@ void Game::gameLoopCvP(int agent, int depth)
     }
     getBotNextMove(1,agent,depth);
     printBoard();
+    usleep(1000);
     if(checkLose(2)){
         cout << "Red Player lost, better luck next time.\n"
         << "Well done White player.\n";
@@ -643,6 +644,7 @@ void Game::gameLoopPvC(int agent, int depth)
 {
     while(true){
     printBoard();
+    usleep(1000);
     if(checkLose(1)){
         cout << "White Player lost, better luck next time.\n"
         << "Well done Red player.\n";
@@ -666,6 +668,7 @@ void Game::gameLoopCvC(int agent1, int depth1, int agent2, int depth2)
 {
     while(true){
     printBoard();
+    usleep(1000);
     if(checkLose(1)){
         cout << "White Player lost, better luck next time.\n"
         << "Well done Red player.\n";
@@ -673,6 +676,7 @@ void Game::gameLoopCvC(int agent1, int depth1, int agent2, int depth2)
     }
     getBotNextMove(1,agent1,depth1);
     printBoard();
+    usleep(1000);
     if(checkLose(2)){
         cout << "Red Player lost, better luck next time.\n"
         << "Well done White player.\n";

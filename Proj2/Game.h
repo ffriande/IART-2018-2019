@@ -6,8 +6,10 @@
 #include <cmath>
 #include <climits>
 #include <ctime>
+#include <unistd.h>
 
 using namespace std;
+
 
 class Game
 {
