@@ -7,7 +7,7 @@ int chooseAgent(){
     while(1){
         cout << "1- agent1 = loose(2) - loose(1).\n";
         cout << "2- agent2 = 100 * agent1 + nrpieces(1) - nrpieces(2).\n";
-        cout << "3- agent3 = agent2 + nr1todo3inrow(1) - nr1todo3inrow(2).\n";
+        cout << "3- agent3 = 10 * agent2 + nr1todo3inrow(1) - nr1todo3inrow(2).\n";
         cout << "Option:\n";
         cin >> option;
         if(option >= 1 && option <= 3)
@@ -20,10 +20,10 @@ int chooseAgent(){
 int chooseDepth(){
     int option=0;
     while(1){
-        cout << "Choose a depth from 1 to 6.\n";
+        cout << "Choose a depth from 1 to 4.\n";
         cout << "Option:\n";
         cin >> option;
-        if(option >= 1 && option <= 6)
+        if(option >= 1 && option <= 4)
             break;
         cout << "Not a valid option. Please pick again.\n";
     }

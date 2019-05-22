@@ -232,19 +232,16 @@ vector<vector<int>> Game::validElimination(int player){
  */
 void Game::getBotNextMove(int player, int agent, int depth){
     vector<vector<int>> move=minimax(*this,depth,INT_MIN,INT_MAX,switchPlayer(player),player,agent);
+    cout << "value: " << move.at(0).at(0) << endl;
     if(isInsert()){
         insertPiece(player,move.at(1).at(0),move.at(1).at(1));
-        cout << "insert from " << player << endl;;
         if(move.size()==3){
             removePiece(player,move.at(2).at(0),move.at(2).at(1));
-            cout << "remove from " << player << endl;
         }
     }else{
         movePiece(player,move.at(1).at(0),move.at(1).at(1),move.at(2).at(0),move.at(2).at(1));
-        cout << "move from " << player << endl;
         if(move.size()==4){
             removePiece(player,move.at(3).at(0),move.at(3).at(1));
-            cout << "remove from " << player << endl;
         }
     }
 }

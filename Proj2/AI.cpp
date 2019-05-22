@@ -8,7 +8,7 @@ map<vector<int>, vector<vector<int>>> getBotMoves(Game game, int player)
     {
         vector<vector<int>> toWhere;
         toWhere = game.getMoveCoords(player, it.at(0), it.at(1));
-        moves[it] = toWhere;
+        moves.insert(pair< vector<int>, vector<vector<int>> >(it,toWhere));
     }
     return moves;
 }
@@ -33,7 +33,12 @@ int evaluate(Game game, int player, int agent)
 
 int evaluation1(Game game, int player)
 {
-    return (game.checkLose(switchPlayer(player)) - game.checkLose(player));
+
+    if(game.checkLose(switchPlayer(player)))
+        return 1;
+    if(game.checkLose(player))
+        return -1;
+    return 0;
 }
 
 int evaluation2(Game game, int player)
@@ -44,7 +49,7 @@ int evaluation2(Game game, int player)
 
 int evaluation3(Game game, int player)
 {
-    int value = 2 * evaluation2(game, player) + game.count2inRow(player) - game.count2inRow(switchPlayer(player));
+    int value = 10 * evaluation2(game, player) + game.count2inRow(player) - game.count2inRow(switchPlayer(player));
     return value;
 }
 
