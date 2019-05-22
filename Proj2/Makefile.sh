@@ -1,1 +1,1 @@
-g++ -std=c++11 -o app -Wall *.cpp
+g++ -std=c++11 -g -o app -Wall *.cpp

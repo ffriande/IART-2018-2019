@@ -1,7 +1,26 @@
 #ifndef AI_H
 #define AI_H
 
+#include "Game.h"
+#include <vector>
+#include <map>
+#include <climits>
+
 using namespace std;
+
+
+map<vector<int>,vector<vector<int>>> getBotMoves(Game game, int player);
+int evaluation1(Game game, int player);
+int evaluation2(Game game, int player);
+int evaluation3(Game game, int player);
+int switchPlayer(int currPlayer);
+bool min(int n1, int n2);
+bool max(int n1, int n2);
+int evaluate(Game game, int player, int agent);
+vector<vector<int>> minimax(Game game, int depth, int alpha, int beta, int maximizingPlayer, int currPlayer, int agent);
+
+
+
 
 /**
  * evaluation1= loose(2) - loose(1);

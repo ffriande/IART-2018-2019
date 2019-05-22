@@ -27,13 +27,15 @@ class Game
     //number of white pieces in the board.
     int numberOfWhitePieces;
   public:
-    Game();
+    Game(int option, int agent1, int depth1, int agent2, int depth2);
+    void startNewGame(int option, int agent1, int depth1, int agent2, int depth2);
     bool isInsert();
     int getnrPlayerPieces(int player);
     void printBoard();
     void askMove(int player);
     void makeMove(int player, int r, int c, vector<vector<int>> validMoves);
     void askElimination(int player, int row, int column);
+    void getBotNextMove(int player, int agent, int depth);
     int count2inRow(int player);
     bool check2inRowHorizontal(int player, int r, int c);
     bool check2inRowVertical(int player, int r, int c);
@@ -44,6 +46,9 @@ class Game
     bool vectorMember(vector<vector<int>> analyse, vector<int> coord);
     bool validDest(int player, int typeMove, int row, int column, int prevRow, int prevColumn);
     bool checkAdjacent(int row1, int column1, int row2, int column2);
+    void movePiece(int player, int row1, int col1, int row2, int col2);
+    void insertPiece(int player, int row, int column);
+    void removePiece(int player, int row, int column);
     bool adjacentHorizontal(int row, int col, int colDif);
     bool adjacentVertical(int col, int row, int rowDif);
     void validInput(int &row, int &col);
@@ -53,6 +58,9 @@ class Game
     bool checkNoMovesLeft(int player);
     bool checkLose(int player);
     void gameLoopPvP();
+    void gameLoopCvP(int agent, int depth);
+    void gameLoopPvC(int agent, int depth);
+    void gameLoopCvC(int agent1, int depth1, int agent2, int depth2);
 };
 
 #endif

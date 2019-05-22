@@ -1,10 +1,11 @@
 #include "Game.h"
+#include "AI.h"
 
 #define MOVE 2
 #define FLY 3
 
 bool Game::isInsert(){
-    if(isInsert())
+    if(this->numberOfPiecesInserted!=18)
         return true;
     return false;
 }
@@ -20,11 +21,28 @@ int Game::getnrPlayerPieces(int player){
 /**
  * Constructor to start a new game.
  */
-Game::Game(){
+Game::Game(int option, int agent1, int depth1, int agent2, int depth2){
     this->numberOfRedPieces=0;
     this->numberOfWhitePieces=0;
     this->numberOfPiecesInserted=0;
-    gameLoopPvP();
+    startNewGame(option, agent1, depth1, agent2, depth2);
+}
+
+void Game::startNewGame(int option, int agent1, int depth1, int agent2, int depth2){
+    switch(option){
+        case 1:
+            gameLoopPvP();
+            break;
+        case 2:
+            gameLoopCvP(agent1, depth1);
+            break;
+        case 3:
+            gameLoopPvC(agent1, depth1);
+            break;
+        case 4:
+            gameLoopCvC(agent1, depth1, agent2, depth2);
+            break;
+    }
 }
 
 /**
@@ -60,9 +78,10 @@ void Game::printBoard()
         }
         cout << "| " << r << endl;
     }
-    cout << "---|---------------------|---\n"
-    << "   | 0 |1 |2 |3 |4 |5 |6 |\n\n";
+    cout << "---|---------------------|---\n";
+    cout << "   | 0 |1 |2 |3 |4 |5 |6 |\n\n";
 }
+
 
 void printvector(vector<vector<int>> a){
     for(auto i:a){
@@ -208,7 +227,29 @@ vector<vector<int>> Game::validElimination(int player){
     return valid;
 }
 
-/**cout << "horizontal\n";
+/**
+ * Gets the bot next move to this game.
+ */
+void Game::getBotNextMove(int player, int agent, int depth){
+    vector<vector<int>> move=minimax(*this,depth,INT_MIN,INT_MAX,switchPlayer(player),player,agent);
+    if(isInsert()){
+        insertPiece(player,move.at(1).at(0),move.at(1).at(1));
+        cout << "insert from " << player << endl;;
+        if(move.size()==3){
+            removePiece(player,move.at(2).at(0),move.at(2).at(1));
+            cout << "remove from " << player << endl;
+        }
+    }else{
+        movePiece(player,move.at(1).at(0),move.at(1).at(1),move.at(2).at(0),move.at(2).at(1));
+        cout << "move from " << player << endl;
+        if(move.size()==4){
+            removePiece(player,move.at(3).at(0),move.at(3).at(1));
+            cout << "remove from " << player << endl;
+        }
+    }
+}
+
+/**
  * Checks if player is doing 3 in a row, on the position row column, if yes returns the vector with the coords of the pieces in that 3 in row.
  * Returns a empty vector if not
  */
@@ -249,8 +290,8 @@ vector<vector<int>> Game::check3InRow(int player, int row, int column){
  */
 int Game::count2inRow(int player){
     int n=0;
-    for(int r=0; r<this->board.size();r++){
-        for(int c=0; c<this->board.at(r).size();c++){
+    for(int r=0; r<(int)this->board.size();r++){
+        for(int c=0; c<(int)this->board.at(r).size();c++){
             int symbol=this->board.at(r).at(c);
             if(symbol==0 || symbol==player){
                 if(check2inRowHorizontal(player,r,c))
@@ -260,6 +301,7 @@ int Game::count2inRow(int player){
             }
         }
     }
+    return n;
 }
 
 /**
@@ -268,18 +310,18 @@ int Game::count2inRow(int player){
 bool Game::check2inRowHorizontal(int player, int r, int c){
     int nrpieces=0;
     int nrofzeros=0;
-    for(int i=0; (c+i)<this->board.at(0).size(); i++){
+    for(int i=0; (c+i)<(int)this->board.at(0).size(); i++){
         if(nrofzeros==2)
             return false;
         int symbol=this->board.at(r).at(c+i);
-        if(symbol==-3)
+        if(symbol==-3 || symbol==switchPlayer(player))
             return false;
         else if(symbol == player)
             nrpieces++;
         else if(symbol == 0)
             nrofzeros++;
     }
-    if(nrpieces==2 && nrofzeros==0){
+    if(nrpieces==2 && nrofzeros==1){
         return true;
     }
     return false;
@@ -291,7 +333,7 @@ bool Game::check2inRowHorizontal(int player, int r, int c){
 bool Game::check2inRowVertical(int player, int r, int c){
     int nrpieces=0;
     int nrofzeros=0;
-    for(int i=0; (r+i)<this->board.size(); i++){
+    for(int i=0; (r+i)<(int)this->board.size(); i++){
         if(nrofzeros==2)
             return false;
         int symbol=this->board.at(r+i).at(c);
@@ -302,7 +344,7 @@ bool Game::check2inRowVertical(int player, int r, int c){
         else if(symbol == 0)
             nrofzeros++;
     }
-    if(nrpieces==2 && nrofzeros==0){
+    if(nrpieces==2 && nrofzeros==1){
         return true;
     }
     return false;
@@ -491,6 +533,34 @@ void Game::validInput(int &row, int &col){
 }
 
 /**
+ * Inserts a piece on the board
+ */
+void Game::insertPiece(int player, int row, int column){
+    this->numberOfPiecesInserted++;
+    if(player==1)
+        this->numberOfWhitePieces++;
+    else
+        this->numberOfRedPieces++;
+    this->board.at(row).at(column)=player;
+}
+
+/**
+ * Moves a piece from (row1,col1) to (row2,col2).
+ */
+void Game::movePiece(int player, int row1, int col1, int row2, int col2){
+    this->board.at(row1).at(col1)=0;
+    this->board.at(row2).at(col2)=player;
+}
+
+void Game::removePiece(int player, int row, int column){
+    this->board.at(row).at(column)=0;
+    if(player==1)
+        this->numberOfRedPieces--;
+    else
+        this->numberOfWhitePieces--;
+}
+
+/**
  * Checks if the player has no more moves left.
  */
 bool Game::checkNoMovesLeft(int player){
@@ -543,5 +613,74 @@ void Game::gameLoopPvP()
         return;
     }
     askMove(2);
+    }
+}
+
+/**
+ * GameLoop to handle all the player vs player.
+ */
+void Game::gameLoopCvP(int agent, int depth)
+{
+    while(true){
+    printBoard();
+    if(checkLose(1)){
+        cout << "White Player lost, better luck next time.\n"
+        << "Well done Red player.\n";
+        return;
+    }
+    getBotNextMove(1,agent,depth);
+    printBoard();
+    if(checkLose(2)){
+        cout << "Red Player lost, better luck next time.\n"
+        << "Well done White player.\n";
+        return;
+    }
+    askMove(2);
+    }
+}
+
+/**
+ * GameLoop to handle all the player vs player.
+ */
+void Game::gameLoopPvC(int agent, int depth)
+{
+    while(true){
+    printBoard();
+    if(checkLose(1)){
+        cout << "White Player lost, better luck next time.\n"
+        << "Well done Red player.\n";
+        return;
+    }
+    askMove(1);
+    printBoard();
+    if(checkLose(2)){
+        cout << "Red Player lost, better luck next time.\n"
+        << "Well done White player.\n";
+        return;
+    }
+    getBotNextMove(2,agent,depth);
+    }
+}
+
+/**
+ * GameLoop to handle all the player vs player.
+ */
+void Game::gameLoopCvC(int agent1, int depth1, int agent2, int depth2)
+{
+    while(true){
+    printBoard();
+    if(checkLose(1)){
+        cout << "White Player lost, better luck next time.\n"
+        << "Well done Red player.\n";
+        return;
+    }
+    getBotNextMove(1,agent1,depth1);
+    printBoard();
+    if(checkLose(2)){
+        cout << "Red Player lost, better luck next time.\n"
+        << "Well done White player.\n";
+        return;
+    }
+    getBotNextMove(2,agent2,depth2);
     }
 }
